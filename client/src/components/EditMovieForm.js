@@ -6,6 +6,9 @@ import axios from 'axios';
 
 const EditMovieForm = (props) => {
 	const { push } = useHistory();
+	const { id } = useParams();
+
+	console.log(props);
 
 	const [movie, setMovie] = useState({
 		title:"",
@@ -14,17 +17,38 @@ const EditMovieForm = (props) => {
 		metascore: 0,
 		description: ""
 	});
+
+	useEffect(() => {
+		axios.get(`http://localhost:5000/api/movies/${id}`)
+		.then(response => {
+			console.log("Fetched movie edit form: ", response);
+			setMovie(response.data)
+		})
+		.catch(error => {
+			console.log("Error fetching movie edit form: ", error)
+		})
+	}, [])
 	
-	const handleChange = (e) => {
+	const handleChange = (event) => {
         setMovie({
             ...movie,
-            [e.target.name]: e.target.value
+            [event.target.name]: event.target.value
         });
     }
 
-    const handleSubmit = (e) => {
-		e.preventDefault();
+    const handleSubmit = (event) => {
+		event.preventDefault();
+
+		axios.put(`http://localhost:5000/api/movies/${id}`, movie)
+		.then(response => {
+			setMovie(response.data);
+			push(`/movies/${id}`);
+		})
+		.catch(error => {
+			console.log("Error updating movie form: ", error)
+		})
 	}
+	
 	
 	const { title, director, genre, metascore, description } = movie;
 
